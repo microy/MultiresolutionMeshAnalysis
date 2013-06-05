@@ -1,0 +1,1249 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0106 
+header_name {.h} 
+code_name {.cpp}
+class GraphicalInterface {open
+} {
+  decl {\#include <string>} {public
+  }
+  decl {\#include <vector>} {public
+  }
+  decl {MultiresolutionMesh* mesh;} {}
+  decl {MultiresolutionProcessing* mesh_processing;} {}
+  decl {char title[1024];} {}
+  decl {char status[256];} {}
+  decl {Vector3d translation_vector;} {}
+  decl {double scale_factor;} {}
+  decl {Vector3d background_color;} {}
+  Function {GraphicalInterface()} {open
+  } {
+    Fl_Window window_main {
+      label {Multiresolution Mesh Analysis}
+      callback {Exit()} open
+      private xywh {528 173 500 425} type Double resizable
+      code0 {\#include "MultiresolutionMesh.h"}
+      code1 {\#include "MultiresolutionProcessing.h"}
+      code2 {\#include <FL/fl_ask.H>}
+      code3 {\#include <FL/Fl_File_Chooser.H>} visible
+    } {
+      Fl_Menu_Bar menu_bar {open
+        private xywh {0 0 500 25} down_box FLAT_BOX
+      } {
+        submenu menu_file {
+          label {&File}
+          private tooltip {File management} xywh {0 0 100 20}
+        } {
+          menuitem menu_file_open {
+            label {&Open...}
+            callback {LoadModel()}
+            private tooltip {Load a model} xywh {5 5 100 20} shortcut 0xffbe
+          }
+          menuitem menu_file_save {
+            label {&Save...}
+            callback {SaveModel()}
+            private tooltip {Save current model} xywh {0 0 100 20} shortcut 0xffbf divider
+          }
+          menuitem menu_file_information {
+            label {&Information}
+            callback {Information()}
+            private tooltip {Model information} xywh {0 0 100 20} shortcut 0xffc0 divider
+          }
+          menuitem menu_file_quit {
+            label {&Quit}
+            callback {Exit()}
+            private tooltip {Exit program} xywh {0 0 100 20} shortcut 0xff1b
+          }
+        }
+        submenu menu_processing {
+          label {&Processing} open
+          private tooltip {Multiresolution processing} xywh {0 0 100 20}
+        } {
+          menuitem menu_processing_analysis {
+            label Analysis
+            callback {Analysis()}
+            private tooltip {Multiresolution decomposition of the model} xywh {0 0 100 20} shortcut 0xffc1 divider
+          }
+          menuitem menu_processing_coloring {
+            label {&Coloring}
+            callback {ShowWindowColoring()}
+            private xywh {0 0 100 20} shortcut 0xffc2
+          }
+          menuitem menu_processing_filtering {
+            label {&Filtering}
+            callback {ShowWindowFiltering()}
+            private tooltip {Filter the model} xywh {0 0 100 20} shortcut 0xffc3
+          }
+          menuitem menu_processing_denoising {
+            label {&Denoising}
+            callback {ShowWindowDenoising()}
+            private tooltip {Model denoising} xywh {0 0 100 20} shortcut 0xffc4
+          }
+          menuitem menu_processing_thresholding {
+            label {&Thresholding}
+            callback {ShowWindowThresholding()}
+            private xywh {0 0 100 20} shortcut 0xffc5
+          }
+          menuitem menu_processing_simplification {
+            label {&Simplification}
+            callback {ShowWindowSimplification()}
+            private xywh {0 0 100 20} shortcut 0xffc6
+          }
+          menuitem menu_processing_test {
+            label Test
+            callback {TestProcessing()}
+            private tooltip {Test some experimental algorithms ;)} xywh {0 0 100 20} shortcut 0xffc7 divider
+          }
+          menuitem menu_processing_reset {
+            label {&Reset}
+            callback {ResetProcessing()}
+            private tooltip {Reset any processing, and restore original model} xywh {0 0 100 20} shortcut 0xffc9
+          }
+        }
+        submenu menu_view {
+          label {&View}
+          private tooltip {Visualization options} xywh {0 0 100 20}
+        } {
+          menuitem menu_view_solid {
+            label {&Solid}
+            callback {ViewSolid()}
+            private xywh {0 0 100 20} type Toggle shortcut 0x73 value 1
+          }
+          menuitem menu_view_wireframe {
+            label {&Wireframe}
+            callback {ViewWireframe()}
+            private xywh {0 0 100 20} type Toggle shortcut 0x77
+          }
+          menuitem menu_view_vertices {
+            label {&Vertices}
+            callback {ViewVertices()}
+            private xywh {0 0 100 20} type Toggle shortcut 0x76
+          }
+          menuitem menu_view_normals {
+            label {&Normals}
+            callback {ViewNormals()}
+            private xywh {0 0 100 20} type Toggle shortcut 0x6e
+          }
+          menuitem menu_view_colors {
+            label {&Colors}
+            callback {ViewColors()}
+            private xywh {0 0 100 20} type Toggle shortcut 0x63
+          }
+          menuitem menu_view_texture {
+            label {&Texture}
+            callback {ViewTexture()}
+            private xywh {0 0 100 20} type Toggle shortcut 0x74 divider
+          }
+          menuitem menu_view_smooth {
+            label {S&mooth shading}
+            callback {ViewSmooth()}
+            private xywh {0 0 100 20} type Toggle shortcut 0x6d
+          }
+          menuitem menu_view_antialiasing {
+            label {&Antialiasing}
+            callback {ViewAntialiasing()}
+            private xywh {0 0 100 20} type Toggle shortcut 0x61 divider
+          }
+          menuitem menu_view_background_color {
+            label {Background color}
+            callback {ViewBackgroundColor()}
+            private xywh {0 0 100 20}
+            code0 {\#include <FL/Fl_Color_Chooser.H>}
+          }
+          menuitem menu_view_transformation {
+            label {T&ransformation}
+            callback {ShowWindowTransformation()}
+            private xywh {0 0 100 20}
+          }
+        }
+        submenu menu_help {
+          label {&Help}
+          private xywh {0 0 100 20}
+        } {
+          menuitem menu_help_about {
+            label {&About}
+            callback {About()}
+            private xywh {0 0 100 20}
+          }
+        }
+      }
+      Fl_Box visualizer {
+        user_data this
+        private xywh {0 25 500 375} resizable hotspot
+        code0 {\#include "Visualizer.h"}
+        class Visualizer
+      }
+      Fl_Box status_bar {
+        private xywh {0 400 500 25} box UP_BOX align 20
+      }
+    }
+    Fl_Window window_message {
+      label Message
+      private xywh {543 622 385 70} type Double box UP_BOX color 53 hide modal
+    } {
+      Fl_Box text_message {
+        label Message
+        private xywh {5 5 375 60} box ENGRAVED_BOX
+      }
+    }
+    Fl_Window window_information {
+      label Information
+      private xywh {951 708 325 265} type Double box UP_BOX color 53 hide
+    } {
+      Fl_Group {} {
+        label Model open
+        private xywh {5 20 315 105} box ENGRAVED_BOX
+      } {}
+      Fl_Group {} {
+        label Details open
+        private xywh {5 145 315 115} box ENGRAVED_BOX
+      } {}
+    }
+    Fl_Window window_coloring {
+      label Coloring
+      private xywh {11 602 290 200} type Double box UP_BOX color 53 hide non_modal
+    } {
+      Fl_Group {} {
+        label {Detail Coloring}
+        private xywh {5 25 280 110} box ENGRAVED_BOX labelcolor 15
+      } {
+        Fl_Value_Slider coloring_slider_level {
+          label Level
+          private xywh {70 35 195 30} type Horizontal color 53 align 4 maximum 20 step 1
+        }
+        Fl_Choice coloring_choice_details {
+          label Details
+          private xywh {70 70 195 30} down_box BORDER_BOX
+        } {
+          menuitem {} {
+            label Geometrical
+            private xywh {20 20 100 20}
+          }
+          menuitem {} {
+            label Normal
+            private xywh {20 20 100 20}
+          }
+          menuitem {} {
+            label Color
+            private xywh {20 20 100 20}
+          }
+          menuitem {} {
+            label Texture
+            private xywh {20 20 100 20}
+          }
+        }
+        Fl_Check_Button coloring_smooth {
+          label Smooth
+          xywh {70 105 190 30} down_box DOWN_BOX
+        }
+      }
+      Fl_Button coloring_button_update {
+        label {&Update}
+        callback {UpdateColoring()}
+        private tooltip {Denoise the model} xywh {5 155 280 35} down_box FLAT_BOX
+      }
+    }
+    Fl_Window window_filtering {
+      label Filtering
+      private xywh {1036 635 240 315} type Double box UP_BOX color 53 hide non_modal
+    } {
+      Fl_Group {} {
+        label {Frequency Bands}
+        private xywh {5 25 230 225} box ENGRAVED_BOX labelcolor 15
+      } {
+        Fl_Slider filtering_slider_1 {
+          label Low
+          private xywh {30 40 30 185} color 53 minimum 2 maximum 0 step 0.1 value 1
+        }
+        Fl_Slider filtering_slider_2 {
+          private xywh {60 40 30 185} color 53 minimum 2 maximum 0 step 0.1 value 1
+        }
+        Fl_Slider filtering_slider_3 {
+          private xywh {90 40 30 185} color 53 minimum 2 maximum 0 step 0.1 value 1
+        }
+        Fl_Slider filtering_slider_4 {
+          private xywh {120 40 30 185} color 53 minimum 2 maximum 0 step 0.1 value 1
+        }
+        Fl_Slider filtering_slider_5 {
+          private xywh {150 40 30 185} color 53 minimum 2 maximum 0 step 0.1 value 1
+        }
+        Fl_Slider filtering_slider_6 {
+          label High
+          private xywh {180 40 30 185} color 53 align 10 minimum 2 maximum 0 step 0.1 value 1
+        }
+      }
+      Fl_Button filtering_button_update {
+        label {&Update}
+        callback {UpdateFiltering()}
+        private tooltip {Filter the model} xywh {5 270 230 35}
+      }
+    }
+    Fl_Window window_denoising {
+      label Denoising
+      private xywh {750 473 290 210} type Double box UP_BOX color 53 hide non_modal
+    } {
+      Fl_Group {} {
+        label {Mesh Denoising} open
+        private xywh {5 25 280 120} box ENGRAVED_BOX labelcolor 15
+      } {
+        Fl_Input denoising_input_threshold {
+          label Threshold
+          private xywh {80 35 110 30} type Float
+        }
+        Fl_Value_Slider denoising_slider_level {
+          label Level
+          private xywh {80 70 195 30} type Horizontal color 53 align 4 maximum 19 step 1
+        }
+        Fl_Choice denoising_choice_type {
+          label Type open
+          private xywh {80 105 195 30} down_box BORDER_BOX
+        } {
+          menuitem {} {
+            label Geometric
+            private xywh {10 10 100 20}
+          }
+          menuitem {} {
+            label Color
+            private xywh {10 10 100 20}
+          }
+        }
+      }
+      Fl_Button denoising_button_update {
+        label {&Update}
+        callback {UpdateDenoising()}
+        private tooltip {Denoise the model} xywh {5 165 280 35} down_box FLAT_BOX
+      }
+    }
+    Fl_Window window_thresholding {
+      label Thresholding
+      private xywh {732 281 290 320} type Double box UP_BOX color 53 hide non_modal
+    } {
+      Fl_Group {} {
+        label {Detail Thresholding}
+        private xywh {5 25 280 120} box ENGRAVED_BOX color 48 selection_color 48 labelcolor 15
+      } {
+        Fl_Input thresholding_input_threshold {
+          label Threshold
+          private xywh {80 35 110 30} type Float
+        }
+        Fl_Value_Slider thresholding_slider_level {
+          label Level
+          private xywh {80 70 195 30} type Horizontal color 53 align 4 maximum 19 step 1
+        }
+        Fl_Choice thresholding_choice_details {
+          label Details
+          private xywh {80 105 195 30} down_box BORDER_BOX
+        } {
+          menuitem {} {
+            label Geometrical
+            private xywh {10 10 100 20}
+          }
+          menuitem {} {
+            label Normal
+            private xywh {10 10 100 20}
+          }
+          menuitem {} {
+            label Color
+            private xywh {10 10 100 20}
+          }
+          menuitem {} {
+            label Texture
+            private xywh {10 10 100 20}
+          }
+        }
+      }
+      Fl_Group {} {
+        label {Morphological Operator}
+        private xywh {5 170 280 85} box ENGRAVED_BOX color 48 labelcolor 15
+      } {
+        Fl_Choice thresholding_choice_morpho {
+          label Type
+          callback {UpdateThresholdingMorpho()}
+          private xywh {75 180 205 30} down_box BORDER_BOX
+        } {
+          menuitem {} {
+            label None
+            private xywh {0 0 100 20}
+          }
+          menuitem {} {
+            label Dilation
+            private xywh {0 0 100 20}
+          }
+          menuitem {} {
+            label Erosion
+            private xywh {0 0 100 20}
+          }
+          menuitem {} {
+            label {Opening (dilation+erosion)}
+            private xywh {0 0 100 20}
+          }
+          menuitem {} {
+            label {Closing (erosion+dilation)}
+            private xywh {0 0 100 20}
+          }
+        }
+        Fl_Counter thresholding_counter_iterations {
+          label Iterations
+          private xywh {75 220 115 25} type Simple align 4 minimum 1 maximum 100 step 1 value 1 deactivate
+        }
+      }
+      Fl_Button thresholding_button_update {
+        label {&Update}
+        callback {UpdateThresholding()}
+        private tooltip {Denoise the model} xywh {5 275 280 35} down_box FLAT_BOX color 48 selection_color 48 labelcolor 32
+      }
+    }
+    Fl_Window window_simplification {
+      label Simplification
+      private xywh {1200 125 290 235} type Double box UP_BOX color 53 hide non_modal
+    } {
+      Fl_Group {} {
+        label {Mesh Simplification}
+        private xywh {5 25 280 145} box ENGRAVED_BOX color 48 selection_color 48 labelcolor 15
+      } {
+        Fl_Input simplification_input_threshold {
+          label Threshold
+          private xywh {80 35 110 30} type Float
+        }
+        Fl_Value_Slider simplification_slider_level {
+          label Level
+          private xywh {80 70 195 30} type Horizontal color 53 align 4 maximum 40 step 1
+        }
+        Fl_Choice simplification_choice_details {
+          label Details
+          private xywh {80 105 195 30} down_box BORDER_BOX
+        } {
+          menuitem {} {
+            label Geometrical
+            private xywh {20 20 100 20}
+          }
+          menuitem {} {
+            label Normal
+            private xywh {20 20 100 20}
+          }
+          menuitem {} {
+            label Color
+            private xywh {20 20 100 20}
+          }
+          menuitem {} {
+            label Texture
+            private xywh {20 20 100 20}
+          }
+        }
+        Fl_Check_Button simplification_check_viewdependent {
+          label {View-dependent}
+          xywh {80 140 155 25} down_box DOWN_BOX
+        }
+      }
+      Fl_Button simplification_button_update {
+        label {&Update}
+        callback {UpdateSimplification()}
+        private tooltip {Denoise the model} xywh {5 190 280 35} down_box FLAT_BOX color 48 selection_color 48 labelcolor 32
+      }
+    }
+    Fl_Window window_transformation {
+      label Transformation
+      private xywh {688 688 165 205} type Double box UP_BOX color 53 hide non_modal
+    } {
+      Fl_Group {} {
+        label Rotation open
+        xywh {10 25 145 120} box ENGRAVED_BOX labelcolor 15
+      } {
+        Fl_Input transformation_input_rotation_x {
+          label x
+          private xywh {30 35 110 30} type Float
+        }
+        Fl_Input transformation_input_rotation_y {
+          label y
+          private xywh {30 70 110 30} type Float
+        }
+        Fl_Input transformation_input_rotation_z {
+          label z
+          private xywh {30 105 110 30} type Float
+        }
+      }
+      Fl_Button transformation_button_update {
+        label {&Update}
+        callback {UpdateTransformation()}
+        private tooltip {Apply transformation to the visualization} xywh {10 160 145 35} down_box FLAT_BOX color 48 selection_color 48 labelcolor 32
+      }
+    }
+    code {// Set the UI scheme
+Fl::get_system_colors();
+
+// Initialize data members
+mesh = 0;
+mesh_processing = 0;
+background_color = 1.0;
+
+// Set the title to the main window
+sprintf(title,"Multiresolution Mesh Analysis");
+window_main->label(title);
+
+// Set the status bar message
+sprintf(status,"");
+status_bar->label(status);
+
+// Apply the default settings to every window
+ResetWindows();
+
+// Set window size and position
+window_main->resize(100,100,900,700);} {}
+  }
+  Function {~GraphicalInterface()} {} {
+    code {// Free memory
+if( mesh_processing ) delete mesh_processing;
+if( mesh ) delete mesh;} {}
+  }
+  Function {Show(int argc, char** argv)} {return_type void
+  } {
+    code {// Show the main window
+window_main->show(argc, argv);} {}
+  }
+  Function {LoadModel()} {private return_type void
+  } {
+    code {// File selection dialog
+char* filename = fl_file_chooser("Load model...", "VRML Files (*.wrl)", "", 0);
+
+// File selection cancel
+if( filename == 0 ) return;
+
+// Delete previous mesh
+if( mesh ) {
+	delete mesh_processing;
+	mesh_processing = 0;
+	delete mesh;
+	mesh = 0;
+}
+
+// Set default main window title
+sprintf(title,"Multiresolution Mesh Analysis");
+window_main->label(title);
+
+// Set default status bar message
+sprintf(status,"");
+
+// Apply the default settings to every window
+ResetWindows();
+
+// Initialize the visualizer
+visualizer->SetModel(0);
+
+// Create new mesh
+mesh = new MultiresolutionMesh;
+
+// Refresh windows
+Fl::flush();
+Fl::check();
+
+// Message
+ShowMessage("Loading model, please wait...");
+
+// Load file
+if( !mesh->ReadFile(filename) )	{
+	// Error
+	HideMessage();
+	fl_alert( "Error while loading file \\"%s\\"",filename );
+	delete mesh;
+	mesh = 0;
+	return;
+}
+
+// Compute the bounding box of the model
+mesh->ComputeBoundingBox();
+
+//translation_vector = mesh->BoundingBox().Barycenter();
+// Translate the model to its gravity center
+//mesh->Translate( -mesh->BoundingBox().Barycenter() );
+// Scale the model to a cube of size 1
+//Vector3d model_size = mesh->BoundingBox().Length();
+//double 
+//scale_factor = 1.0 / std::max( std::max(model_size[0], model_size[1]), model_size[2] );
+//mesh->Scale( scale_factor );
+
+// Update the bounding box of the model
+//mesh->ComputeBoundingBox();
+
+// If the is a texture, convert the relative filename of the texture to an absolute filename
+if(mesh->TextureName().empty() == false) {
+	// Convert the texture filename to absolute path starting from the model absolute filename
+	std::string texture_filename = filename;
+	// Find the path in the filename
+\#ifdef WIN32
+	int pos = texture_filename.find_last_of('\\\\');
+\#else
+	int pos = texture_filename.find_last_of('/');
+\#endif
+	if( pos != -1 ) {
+		// Remove the filename of the model in the path
+		texture_filename.erase(++pos);
+		// Add the texture name after the path
+		texture_filename += mesh->TextureName();
+		// Save the absolute filename of the texture in the mesh
+		mesh->TextureName() = texture_filename;
+	}
+}
+
+mesh->SetAllValid();
+mesh->CollectNeighbors();
+mesh->ComputeFaceNormals();
+mesh->ComputeVertexNormals();
+
+// Transfer model to the visualizer
+visualizer->SetModel( mesh );
+
+// Change the main window title according to the new file name
+sprintf(title,"Multiresolution Mesh Analysis - %s", fl_filename_name(filename));
+window_main->label(title);
+
+// Setup visualization options
+UpdateWindows();
+UpdateStatus();
+
+HideMessage();} {}
+  }
+  Function {SaveModel()} {private return_type void
+  } {
+    code {// File selection dialog
+char* filename = fl_file_chooser("Save model...", "VRML Files (*.wrl)", "", 0);
+
+// File selection cancel
+if( filename == 0 ) return;
+
+//static int num = 0;
+//char filename[255];
+//sprintf(filename,"level%02dt.wrl",num++);
+
+//Mesh* mesh_temp = new Mesh(*mesh);
+
+//
+//mesh_temp->Translate(translation_vector);
+//mesh_temp->Scale(1.0/scale_factor);
+
+// Message box
+ShowMessage("Saving model, please wait...");
+
+// Save file
+if( !mesh->WriteFile(filename, VRML_1_FILE) ) {
+	HideMessage();
+	fl_alert( "Error while saving file \\"%s\\"",filename );
+	return;
+}
+
+// Hide the message window and activate all other windows
+HideMessage();
+UpdateStatus();
+
+//delete mesh_temp;} {}
+  }
+  Function {Analysis()} {private return_type void
+  } {
+    code {if(mesh->LevelNumber()!=0) return;
+if( mesh_processing != 0 ) {
+	delete mesh_processing;
+	mesh_processing = 0;
+}
+
+// Message
+ShowMessage("Decomposing model, please wait...");
+
+// Analysis
+if( !mesh->Analysis(20) ) {
+	// Error
+	delete mesh;
+	mesh = 0;
+	HideMessage();
+	fl_alert("Error during the decomposition of the model");
+	return;
+}
+
+// Message
+ShowMessage("Reconstructing model, please wait...");
+
+// Synthesis
+if( !mesh->Synthesis() ) {
+	// Error
+	delete mesh;
+	mesh = 0;
+	HideMessage();
+	fl_alert("Error during the reconstruction of the model");
+	return;
+}
+
+// Compute normals
+mesh->ComputeFaceNormals();
+mesh->ComputeVertexNormals();
+
+// Message
+ShowMessage("Preparing multiresolution processing, please wait...");
+
+// Initialize the "processor"
+mesh_processing = new MultiresolutionProcessing( mesh );
+
+// Update windows
+UpdateWindows();
+
+// Update status bar
+UpdateStatus();
+
+//
+HideMessage();} {}
+  }
+  Function {Information()} {private return_type bool
+  } {
+    code {// Test if a model has been loaded and analysed
+if( mesh==0 || mesh_processing==0 ) return false;
+
+// Compute multiresolution model statistics
+mesh_processing->Statistics();} {}
+  }
+  Function {Exit()} {private return_type void
+  } {
+    code {exit(0);} {}
+  }
+  Function {UpdateStatus()} {return_type void
+  } {
+    code {if( !mesh ) sprintf(status,"");
+else sprintf(status, "Level: %d ~ Vertices: %d ~ Faces: %d", mesh->CurrentLevelNumber(), mesh->ValidVertexNumber(), mesh->ValidFaceNumber());
+status_bar->redraw();} {}
+  }
+  Function {UpdateWindows()} {private return_type void
+  } {
+    code {if( !mesh ) {
+	// Apply the default settings to every window
+	ResetWindows();
+	return;
+}
+
+//
+// Setup visualization options
+//
+
+// Activate menu processing
+menu_file_save->activate();
+menu_file_information->activate();
+menu_processing->activate();
+menu_view->activate();
+
+// Check for colors
+if( mesh->ColorNumber() == mesh->VertexNumber() ) {
+	menu_view_colors->set();
+	menu_view_colors->activate();
+//	menu_options_choice_details[3].show();
+	menu_coloring_choice_details[2].show();
+	menu_thresholding_choice_details[2].show();
+	menu_simplification_choice_details[2].show();
+	visualizer->EnableColors(true);
+}
+else {
+	menu_view_colors->clear();
+	menu_view_colors->deactivate();
+//	menu_options_choice_details[3].hide();
+	menu_coloring_choice_details[2].hide();
+	menu_thresholding_choice_details[2].hide();
+	menu_simplification_choice_details[2].hide();
+	visualizer->EnableColors(false);
+}
+
+// Check for texture
+if( (mesh->TextureNumber()!=0) && (mesh->TextureName().empty()==false) ) {
+	menu_view_texture->set();
+	menu_view_texture->activate();
+//	menu_options_choice_details[4].show();
+	menu_coloring_choice_details[3].show();
+	menu_thresholding_choice_details[3].show();
+	menu_simplification_choice_details[3].show();
+	visualizer->EnableTexture(true);
+}
+else {
+	menu_view_texture->clear();
+	menu_view_texture->deactivate();
+//	menu_options_choice_details[4].hide();
+	menu_coloring_choice_details[3].hide();
+	menu_thresholding_choice_details[3].hide();
+	menu_simplification_choice_details[3].hide();
+	visualizer->EnableTexture(false);
+}} {}
+  }
+  Function {ResetWindows()} {private return_type void
+  } {
+    code {// Menu
+menu_file_save->deactivate();
+menu_file_information->deactivate();
+menu_processing->deactivate();
+menu_view->deactivate();
+
+// Visualizer
+visualizer->EnableSolid(true);
+visualizer->EnableWireframe(false);
+visualizer->EnableVertices(false);
+visualizer->EnableNormals(false);
+visualizer->EnableColors(false);
+visualizer->EnableTexture(false);
+visualizer->EnableSmooth(false);
+visualizer->EnableAntialiasing(false);
+visualizer->EnableDetailsGeometrical(false);
+visualizer->EnableDetailsNormal(false);
+visualizer->EnableDetailsColor(false);
+visualizer->EnableDetailsTexture(false);
+visualizer->ToggleSimplification(false);
+
+// View Menu
+menu_view_solid->set();
+menu_view_wireframe->clear();
+menu_view_vertices->clear();
+menu_view_normals->clear();
+menu_view_colors->clear();
+menu_view_colors->deactivate();
+menu_view_texture->clear();
+menu_view_texture->deactivate();
+menu_view_smooth->clear();
+menu_view_antialiasing->clear();
+
+// Window Coloring
+coloring_slider_level->value(0);
+coloring_choice_details->value(0);
+coloring_smooth->value(0);
+menu_coloring_choice_details[2].hide();
+menu_coloring_choice_details[3].hide();
+
+// Window Filtering
+filtering_slider_1->value(1);
+filtering_slider_2->value(1);
+filtering_slider_3->value(1);
+filtering_slider_4->value(1);
+filtering_slider_5->value(1);
+filtering_slider_6->value(1);
+
+// Window Denoising
+denoising_input_threshold->value("0.05");
+denoising_slider_level->value(0);
+denoising_choice_type->value(0);
+
+// Window Thresholding
+thresholding_input_threshold->value("0.05");
+thresholding_slider_level->value(0);
+thresholding_choice_details->value(0);
+thresholding_choice_morpho->value(0);
+thresholding_counter_iterations->value(1);
+thresholding_counter_iterations->deactivate();
+
+// Window Simplification
+simplification_input_threshold->value("0.05");
+simplification_slider_level->value(0);
+simplification_choice_details->value(0);
+menu_simplification_choice_details[2].hide();
+menu_simplification_choice_details[3].hide();} {}
+  }
+  Function {ResetProcessing()} {private return_type void
+  } {
+    code {// Check
+if( !mesh ) return;
+if(mesh->LevelNumber()==0) return;
+
+// Restore original model
+ShowMessage("Restoring original model, please wait...");
+
+// Restore original model, and reset processings to their default values
+mesh_processing->Reset();
+
+// Check for colors
+UpdateWindows();
+
+// Update status bar
+UpdateStatus();
+
+// Update visualization
+visualizer->ToggleSimplification(false);
+visualizer->ToggleColorBar(false);
+visualizer->UpdateModel();
+
+// Hide the message box
+HideMessage();} {}
+  }
+  Function {ShowWindowInformation()} {private return_type void
+  } {}
+  Function {ShowWindowColoring()} {private return_type void
+  } {
+    code {if(mesh->LevelNumber()==0) return;
+if(window_coloring->shown()) window_coloring->hide();
+else window_coloring->show();} {}
+  }
+  Function {ShowWindowFiltering()} {private return_type void
+  } {
+    code {if(mesh->LevelNumber()==0) return;
+if(window_filtering->shown()) window_filtering->hide();
+else window_filtering->show();} {}
+  }
+  Function {ShowWindowDenoising()} {private return_type void
+  } {
+    code {if(mesh->LevelNumber()==0) return;
+if(window_denoising->shown()) window_denoising->hide();
+else window_denoising->show();} {}
+  }
+  Function {ShowWindowThresholding()} {private return_type void
+  } {
+    code {if(mesh->LevelNumber()==0) return;
+if(window_thresholding->shown()) window_thresholding->hide();
+else window_thresholding->show();} {}
+  }
+  Function {ShowWindowSimplification()} {private return_type void
+  } {
+    code {if(mesh->LevelNumber()==0) return;
+if(window_simplification->shown()) window_simplification->hide();
+else window_simplification->show();} {}
+  }
+  Function {ShowWindowTransformation()} {private return_type void
+  } {
+    code {if(window_transformation->shown()) window_transformation->hide();
+else window_transformation->show();} {}
+  }
+  Function {ViewSolid()} {private return_type void
+  } {
+    code {visualizer->EnableSolid( menu_view_solid->value() );} {}
+  }
+  Function {ViewWireframe()} {private return_type void
+  } {
+    code {visualizer->EnableWireframe( menu_view_wireframe->value() );} {}
+  }
+  Function {ViewVertices()} {private return_type void
+  } {
+    code {visualizer->EnableVertices( menu_view_vertices->value() );} {}
+  }
+  Function {ViewNormals()} {private return_type void
+  } {
+    code {visualizer->EnableNormals( menu_view_normals->value() );} {}
+  }
+  Function {ViewColors()} {private return_type void
+  } {
+    code {visualizer->EnableColors( menu_view_colors->value() );} {}
+  }
+  Function {ViewTexture()} {private return_type void
+  } {
+    code {visualizer->EnableTexture( menu_view_texture->value() );} {}
+  }
+  Function {ViewSmooth()} {private return_type void
+  } {
+    code {visualizer->EnableSmooth( menu_view_smooth->value() );} {}
+  }
+  Function {ViewAntialiasing()} {private return_type void
+  } {
+    code {visualizer->EnableAntialiasing( menu_view_antialiasing->value() );} {}
+  }
+  Function {ViewBackgroundColor()} {private return_type void
+  } {
+    code {// Pop up the color chooser window
+fl_color_chooser("Color Chooser", background_color[0], background_color[1], background_color[2]);
+// Set the background color of the OpenGL visualizer
+visualizer->SetBackgroundColor(background_color);} {}
+  }
+  Function {OptionTexture2Colors()} {private return_type void
+  } {
+    code {// Is there a mesh ?
+if( !mesh ) return;
+
+// Is there a texture ?
+if( mesh->TextureNumber()!=mesh->VertexNumber() || mesh->TextureName().empty() ) return;
+
+// Message
+ShowMessage("Converting texture to vertex colors, please wait...");
+
+// Convert the texture image to vertex colors
+mesh->ConvertTexture2Colors();
+
+// Message
+ShowMessage("Decomposing model, please wait...");
+
+// Analyse the mesh again (to manage new color attributes)
+if( !mesh->Analysis(20) ) {
+	// Error
+	delete mesh;
+	mesh = 0;
+	HideMessage();
+	fl_alert("Error during the decomposition of the model");
+	return;
+}
+
+// Message
+ShowMessage("Reconstructing model, please wait...");
+
+// Synthesis
+if( !mesh->Synthesis() ) {
+	// Error
+	delete mesh;
+	mesh = 0;
+	HideMessage();
+	fl_alert("Error during the reconstruction of the model");
+	return;
+}
+
+// Message
+ShowMessage("Preparing visualization, please wait...");
+
+// Transfer model to the visualizer
+visualizer->SetModel( mesh );
+
+// Setup visualization options
+UpdateWindows();
+UpdateStatus();
+
+// Hide the message box
+HideMessage();} {}
+  }
+  Function {UpdateColoring()} {private return_type void
+  } {
+    code {// Check mesh
+if( !mesh ) return;
+
+// Get parameters
+int level_number = (int)coloring_slider_level->value();
+DetailType type = (DetailType)coloring_choice_details->value();
+bool smooth = (bool)coloring_smooth->value();
+ShowMessage("Coloring the model, please wait...");
+
+// Apply thresholding
+mesh_processing->Color( type, level_number, smooth );
+
+// Display colors
+menu_view_colors->set();
+menu_view_colors->activate();
+visualizer->EnableColors( true );
+
+// Update visualization
+visualizer->ToggleColorBar(true);
+visualizer->UpdateModel();
+
+// Update status bar
+UpdateStatus();
+
+// Hide the message box
+HideMessage();} {}
+  }
+  Function {UpdateFiltering()} {private return_type void
+  } {
+    code {// Check mesh
+if( !mesh ) return;
+
+// Get parameters
+std::vector<double> filter_bands(6);
+filter_bands[0] = filtering_slider_1->value();
+filter_bands[1] = filtering_slider_2->value();
+filter_bands[2] = filtering_slider_3->value();
+filter_bands[3] = filtering_slider_4->value();
+filter_bands[4] = filtering_slider_5->value();
+filter_bands[5] = filtering_slider_6->value();
+
+// Show message
+ShowMessage("Applying filter, please wait...");
+
+// Apply denoising
+mesh_processing->Filter( filter_bands );
+
+// Update visualization
+visualizer->UpdateModel();
+
+// Hide the message box
+HideMessage();} {}
+  }
+  Function {UpdateDenoising()} {private return_type void
+  } {
+    code {// Check mesh
+if( !mesh ) return;
+
+// Get parameters
+double threshold = atof(denoising_input_threshold->value());
+int level_number = (int)denoising_slider_level->value();
+bool soft_thresholding = (bool)denoising_choice_type->value();
+
+// Show message
+ShowMessage("Applying denoising filter, please wait...");
+
+// Apply denoising
+mesh_processing->Denoise( threshold, level_number, soft_thresholding );
+
+// Update visualization
+visualizer->UpdateModel(false);
+
+// Update status bar
+UpdateStatus();
+
+// Hide the message box
+HideMessage();} {}
+  }
+  Function {UpdateThresholding()} {private return_type void
+  } {
+    code {// Check mesh
+if(mesh == 0) return;
+
+// Get parameters
+double threshold = atof(thresholding_input_threshold->value());
+int level_number = (int)thresholding_slider_level->value();
+SegmentationType type = (SegmentationType)thresholding_choice_morpho->value();
+int iterations = (int)thresholding_counter_iterations->value();
+
+// Show message
+ShowMessage("Applying thresholding filter, please wait...");
+
+// Apply thresholding
+mesh_processing->Threshold( threshold, level_number, type, iterations );
+
+// Display colors
+menu_view_colors->set();
+menu_view_colors->activate();
+visualizer->EnableColors( true );
+
+// Update visualization
+visualizer->UpdateModel();
+
+// Update status bar
+UpdateStatus();
+
+// Hide the message box
+HideMessage();} {}
+  }
+  Function {UpdateSimplification()} {private return_type void
+  } {
+    code {// Check 
+if(mesh == 0) return;
+
+// Get parameters
+double threshold = atof(simplification_input_threshold->value());
+int level_number = (int)simplification_slider_level->value();
+DetailType type = (DetailType)simplification_choice_details->value();
+
+// Show message
+ShowMessage("Applying simplification, please wait...");
+
+// Apply simplification
+if( simplification_check_viewdependent->value() ) {
+	mesh_processing->Simplify( threshold, level_number, type, true, visualizer->GetViewport() );
+}
+else {
+	mesh_processing->Simplify( threshold, level_number, type );
+}
+
+// Update status bar
+sprintf(status, "Adaptive reconstruction ~ Vertices: %d ~ Faces: %d", mesh->ValidVertexNumber(), mesh->ValidFaceNumber());
+status_bar->redraw();
+
+// Update visualization
+visualizer->ToggleSimplification(true);
+visualizer->UpdateModel();
+
+// Hide the message box
+HideMessage();} {}
+  }
+  Function {UpdateThresholdingMorpho()} {private return_type void
+  } {
+    code {// If a morphological operator has been chosen: activate iteration number widget
+if( thresholding_choice_morpho->value() != 0 ) thresholding_counter_iterations->activate();
+// Otherwise, deactivate iteration number widget
+else thresholding_counter_iterations->deactivate();} {}
+  }
+  Function {UpdateTransformation()} {private return_type void
+  } {
+    code {// Check 
+if(mesh == 0) return;
+
+// Get parameters
+double rotx = atof(transformation_input_rotation_x->value());
+double roty = atof(transformation_input_rotation_y->value());
+double rotz = atof(transformation_input_rotation_z->value());
+
+// Apply transformation
+visualizer->SetTransformation(rotx, roty, rotz);} {}
+  }
+  Function {ShowMessage(const char* msg)} {private return_type void
+  } {
+    code {// Deactivate windows
+//window_main->deactivate();
+window_coloring->deactivate();
+window_filtering->deactivate();
+window_denoising->deactivate();
+window_thresholding->deactivate();
+window_simplification->deactivate();
+
+// Initialize window cursors to wait state
+window_main->cursor(FL_CURSOR_WAIT);
+window_coloring->cursor(FL_CURSOR_WAIT);
+window_filtering->cursor(FL_CURSOR_WAIT);
+window_denoising->cursor(FL_CURSOR_WAIT);
+window_thresholding->cursor(FL_CURSOR_WAIT);
+window_simplification->cursor(FL_CURSOR_WAIT);
+window_message->cursor(FL_CURSOR_WAIT);
+
+// Deactivate menu
+menu_bar->deactivate();
+
+// Update message
+//text_message->label(msg);
+
+// Show message window
+//window_message->show();
+
+sprintf(status, "%s", msg);
+//status_bar->redraw();
+
+// Refresh all the windows
+Fl::flush();
+Fl::check();} {}
+  }
+  Function {HideMessage()} {private return_type void
+  } {
+    code {// Activate windows
+//window_main->activate();
+window_coloring->activate();
+window_filtering->activate();
+window_denoising->activate();
+window_thresholding->activate();
+window_simplification->activate();
+
+// Initialize window cursors to default state
+window_main->cursor(FL_CURSOR_DEFAULT);
+window_coloring->cursor(FL_CURSOR_DEFAULT);
+window_filtering->cursor(FL_CURSOR_DEFAULT);
+window_denoising->cursor(FL_CURSOR_DEFAULT);
+window_thresholding->cursor(FL_CURSOR_DEFAULT);
+window_simplification->cursor(FL_CURSOR_DEFAULT);
+
+// Activate menu
+menu_bar->activate();
+
+// Hide message window
+//window_message->hide();
+//sprintf(status, "");
+
+// Refresh all the windows
+Fl::flush();
+Fl::check();} {}
+  }
+  Function {About()} {private return_type void
+  } {
+    code {fl_message("Multresolution Mesh Analysis v1.0\\nCopyright 2002-2005 by Michael Roy\\nGNU General Public License");} {}
+  }
+  Function {TestProcessing()} {private return_type void
+  } {
+    code {// Check mesh
+if(mesh == 0) return;
+
+// Show message
+ShowMessage("Applying test processing, please wait...");
+
+// Apply thresholding
+mesh_processing->Test();
+
+// Display colors
+menu_view_colors->set();
+menu_view_colors->activate();
+visualizer->EnableColors( true );
+
+// Update visualization
+visualizer->UpdateModel();
+
+// Update status bar
+UpdateStatus();
+
+// Hide the message box
+HideMessage();} {selected
+    }
+  }
+} 
