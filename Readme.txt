@@ -1,4 +1,4 @@
-MMA Readme
+MMA
 Multiresolution Mesh Analysis Software
 Copyright (C) 2002-2005 Michaël Roy
 
